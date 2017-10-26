@@ -16,12 +16,12 @@ var redraw = function redraw(time) {
 
     if (user.alpha < 1) user.alpha += 0.05;
 
-    user.pos.setX(lerp(user.prev.getX(), user.dest.getX(), user.alpha));
-    user.pos.setY(lerp(user.prev.getY(), user.dest.getY(), user.alpha));
+    user.pos._x = lerp(user.prev._x, user.dest._x, user.alpha);
+    user.pos._y = lerp(user.prev._y, user.dest._y, user.alpha);
 
     ctx.save();
     ctx.fillStyle = user.color;
-    ctx.fillRect(user.pos.getX(), user.pos.getY(), user.scale.getX(), user.scale.getY());
+    ctx.fillRect(user.pos._x, user.pos._y, user.scale._x, user.scale._y);
     ctx.restore();
   }
 
@@ -29,19 +29,24 @@ var redraw = function redraw(time) {
 };
 'use strict';
 
-var Vec2d = require('vector2d');
-
 var canvas = void 0;
 var ctx = void 0;
 
 var socket = void 0;
 var hash = void 0;
-
+var animationFrame = void 0;
 var users = {};
 
 var keyDownHandler = function keyDownHandler(e) {
   var keyPressed = e.which;
   var user = users[hash];
+
+  console.log('user.vector in keydown');
+  console.dir(user.acc);
+  console.dir(user.vel);
+  console.dir(user.pos);
+  console.dir(user.prev);
+  console.dir(user.dest);
 
   //LEFT or A
   if (keyPressed === 65 || keyPressed === 37) {
@@ -58,6 +63,13 @@ var keyUpHandler = function keyUpHandler(e) {
   var keyReleased = e.which;
   var user = users[hash];
 
+  console.log('user.vector in keyUp');
+  console.dir(user.acc);
+  console.dir(user.vel);
+  console.dir(user.pos);
+  console.dir(user.prev);
+  console.dir(user.dest);
+
   //LEFT or A
   if (keyReleased === 65 || keyReleased === 37) {
     user.moveLeft = false;
@@ -70,7 +82,7 @@ var keyUpHandler = function keyUpHandler(e) {
 
   //UP or W (for jumping)
   if (keyReleased === 87 || keyReleased === 38) {
-    user.vel.setY(square.jumpSpeed);
+    user.vel._y = user.jumpSpeed;
     user.jumping = true;
   }
 };
@@ -108,8 +120,10 @@ var update = function update(data) {
 
   var user = users[data.hash];
 
-  user.prev.setAxes(data.prev.getX(), data.prev.getY());
-  user.dest.setAxes(data.dest.getX(), data.dest.getY());
+  user.prev._x = data.prev._x;
+  user.prev._y = data.prev._y;
+  user.dest._x = data.dest._x;
+  user.dest._y = data.dest._y;
 
   user.moveLeft = data.moveLeft;
   user.moveRight = data.moveRight;
@@ -130,45 +144,59 @@ var setUser = function setUser(data) {
 };
 
 var updatePosition = function updatePosition() {
+  debugger;
+
   var user = users[hash];
-  var acceleration = Vec2d.ObjectVector(0, 0);
+  var acceleration = Vec2D.ObjectVector(0, 0);
+
+  console.log('user.vector properties in update');
+  console.dir(user.vel);
+  console.dir(user.acc);
+  console.dir(user.prev);
+  console.dir(user.dest);
+  console.dir(user.pos);
 
   //update prev to last known position
+  user.prev._x = user.pos._x;
+  user.prev._y = user.pos._y;
 
-  user.prev.setAxes(user.pos.getX(), user.pos.getY());
-
-  if (user.moveRight && user.dest.getX() < 400) {
+  if (user.moveRight && user.dest._x < 400) {
     acceleration.add(Vec2d.ObjectVector(2, 0));
   }
 
-  if (user.moveLeft && user.dest.getX() > 0) {
+  if (user.moveLeft && user.dest._x > 0) {
     acceleration.add(Vec2d.ObjectVector(-2, 0));
   }
 
   if (!user.moveLeft && !user.moveRight) {
-    user.vel.setX(user.vel.getX() * user.friction);
+    user.vel._x = user.vel._x * user.friction;
   }
 
-  if (user.jumping && user.dest.getY() < 400) {
-    acceleration.setY(user.gravity);
+  if (user.jumping && user.dest._y < 400) {
+    acceleration._y = user.gravity;
   }
 
-  if (user.jumping && user.dest.getY() >= 400) {
+  if (user.jumping && user.dest._y >= 400) {
     user.jumping = false;
-    acceleration.setY(0);
+    acceleration._y = 0;
   }
 
-  user.acc.setAxes(acceleration.getX(), acceleration.getY());
+  user.acc._x = acceleration._x;
+  user.acc._y = acceleration._y;
 
-  user.vel.add(user.acc.clone());
+  user.vel = user.vel + user.acc;
 
-  if (user.vel.magnitude() > user.maxVelocity) {
-    user.vel = user.vel.clone().normalize();
+  if (user.vel._x > user.maxVelocity || user.vel._y > user.maxVelocity) {
+    user.vel._x = 1;
+    user.vel._y = 1;
 
-    user.vel.mulS(user.maxVelocity);
+    user.vel._x *= user.maxVelocity;
+
+    user.vel._y *= user.maxVelocity;
   }
 
-  user.dest.setAxes(user.pos.getX() + user.vel.getX(), user.pos.getY() + user.vel.getY());
+  user.dest._x = user.pos._x + user.vel._x;
+  user.dest._y = user.pos._y + user.vel._y;
 
   user.alpha = 0.05;
 

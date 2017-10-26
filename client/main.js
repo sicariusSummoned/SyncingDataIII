@@ -1,11 +1,9 @@
-let Vec2d = require('vector2d');
-
 let canvas;
 let ctx;
 
 let socket;
 let hash;
-
+let animationFrame;
 let users = {};
 
 const keyDownHandler = (e) => {
@@ -13,10 +11,17 @@ const keyDownHandler = (e) => {
   const user = users[hash];
 
 
-  //LEFT or A
-  if (keyPressed === 65 || keyPressed === 37) {
-    user.moveLeft = true;
-  }
+  console.log('user.vector in keydown');
+  console.dir(user.acc);
+  console.dir(user.vel);
+  console.dir(user.pos);
+  console.dir(user.prev);
+  console.dir(user.dest);
+
+    //LEFT or A
+    if (keyPressed === 65 || keyPressed === 37) {
+      user.moveLeft = true;
+    }
 
 
   //RIGHT or D
@@ -30,10 +35,17 @@ const keyUpHandler = (e) => {
   const user = users[hash];
 
 
-  //LEFT or A
-  if (keyReleased === 65 || keyReleased === 37) {
-    user.moveLeft = false;
-  }
+  console.log('user.vector in keyUp');
+  console.dir(user.acc);
+  console.dir(user.vel);
+  console.dir(user.pos);
+  console.dir(user.prev);
+  console.dir(user.dest);
+
+    //LEFT or A
+    if (keyReleased === 65 || keyReleased === 37) {
+      user.moveLeft = false;
+    }
 
 
   //RIGHT or D
@@ -44,7 +56,7 @@ const keyUpHandler = (e) => {
 
   //UP or W (for jumping)
   if (keyReleased === 87 || keyReleased === 38) {
-    user.vel.setY(square.jumpSpeed);
+    user.vel._y = user.jumpSpeed;
     user.jumping = true;
   }
 };

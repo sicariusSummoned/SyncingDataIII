@@ -29,7 +29,7 @@ const setupSockets = (ioServer) =>{
       
       users[socket.hash].lastUpdate = new Date().getTime();
       
-      physics.setCharacter(users[socket.hash]);
+      physics.setUserList(users[socket.hash]);
       
       io.sockets.in('room1').emit('updatedMovement', users[socket.hash]);
     });
@@ -39,7 +39,7 @@ const setupSockets = (ioServer) =>{
       
       delete users[socket.hash];
       
-      physics.setCharacterList(users);
+      physics.setUserList(users);
       
       socket.leave('room1');
     });

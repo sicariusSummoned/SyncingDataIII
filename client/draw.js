@@ -14,13 +14,13 @@ const redraw = (time) => {
 
     if (user.alpha < 1) user.alpha += 0.05;
 
-    user.pos.setX(lerp(user.prev.getX(), user.dest.getX(), user.alpha));
-    user.pos.setY(lerp(user.prev.getY(), user.dest.getY(), user.alpha));
+    user.pos._x = lerp(user.prev._x,user.dest._x, user.alpha);
+    user.pos._y = lerp(user.prev._y, user.dest._y, user.alpha);
 
 
     ctx.save();
     ctx.fillStyle = user.color;
-    ctx.fillRect(user.pos.getX(), user.pos.getY(), user.scale.getX(), user.scale.getY());
+    ctx.fillRect(user.pos._x, user.pos._y, user.scale._x, user.scale._y);
     ctx.restore();
   }
   

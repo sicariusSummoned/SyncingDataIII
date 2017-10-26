@@ -1,13 +1,13 @@
 const sockets = require('./sockets.js');
-let charList = {};
+let useList = {};
 
-const setCharacterList = (characterList) => {
-  charList = characterList;
+const setUserList = (userList) => {
+  userList = userList;
 };
 
-const setCharacter = (character) => {
-  charList[character.hash] = character;
+const setUser = (user) => {
+  useList[user.hash] = user;
 };
 
-module.exports.setCharacterList = setCharacterList;
-module.exports.setCharacter = setCharacter;
+module.exports.setUserList = setUserList;
+module.exports.setUser = setUser;
